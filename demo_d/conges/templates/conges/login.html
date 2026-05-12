@@ -1,0 +1,70 @@
+<!--
+Rôle de ce fichier dans Django :
+Ce template affiche le formulaire de connexion de l'application conges.
+Il reçoit le formulaire depuis login_view et l'envoie en POST à la même URL.
+-->
+{% extends 'conges/base.html' %}
+
+{% block content %}
+    <!-- La grille centre le formulaire sur la page. -->
+    <div class="row justify-content-center">
+        <!-- Cette colonne limite la largeur pour garder une lecture confortable. -->
+        <div class="col-md-5">
+            <!-- La carte encadre uniquement le formulaire de connexion. -->
+            <div class="card shadow-sm">
+                <!-- Le corps contient le titre et les champs. -->
+                <div class="card-body">
+                    <!-- Le titre indique clairement l'action attendue. -->
+                    <div class="page-heading">
+                        <h1>Connexion</h1>
+                        <p>Accedez a votre espace de gestion des conges.</p>
+                    </div>
+                    <!-- Le formulaire en POST envoie les identifiants à la vue. -->
+                    <form method="post">
+                        <!-- Le jeton CSRF est obligatoire pour sécuriser les formulaires Django. -->
+                        {% csrf_token %}
+                        <!-- {{ form }} affiche les champs générés par AuthenticationForm. -->
+                        {{ form.as_p }}
+                        <!-- Le bouton soumet le formulaire au serveur. -->
+                        <button class="btn btn-primary w-100" type="submit">Se connecter</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cette carte affiche les comptes de test disponibles en local. -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h2 class="h6 mb-3 fw-bold">Identifiants de test</h2>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Rôle</th>
+                                    <th scope="col">Utilisateur</th>
+                                    <th scope="col">Mot de passe</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Administrateur</td>
+                                    <td><code>admin</code></td>
+                                    <td><code>admin123</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Employé</td>
+                                    <td><code>employe1</code></td>
+                                    <td><code>employe123</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Responsable</td>
+                                    <td><code>responsable1</code></td>
+                                    <td><code>responsable123</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,97 @@
+<!--
+Rôle de ce fichier dans Django :
+Ce template affiche l'espace responsable de l'application conges.
+Il liste les demandes en attente et propose deux actions de traitement.
+-->
+{% extends 'conges/base.html' %}
+
+{% block content %}
+    <!-- L'en-tête regroupe le titre et le lien vers l'historique global. -->
+    <div class="d-flex justify-content-between align-items-center gap-3 mb-4 page-heading">
+        <div>
+            <!-- Le titre identifie la page de validation. -->
+            <h1>Demandes en attente</h1>
+            <p>Suivi responsable des demandes a valider ou refuser.</p>
+        </div>
+        <!-- Le lien ouvre toutes les demandes, y compris celles déjà traitées. -->
+        <a class="btn btn-outline-primary" href="{% url 'conges:historique_demandes' %}">Historique complet</a>
+    </div>
+
+    <!-- Ces cartes donnent une vue rapide de l'activite globale. -->
+    <section class="hero-panel mb-4">
+        <div class="summary-grid">
+            <div class="summary-card sun">
+                <span>En attente</span>
+                <strong>{{ demandes_en_attente }}</strong>
+                <small>demandes a traiter</small>
+            </div>
+            <div class="summary-card mint">
+                <span>Total</span>
+                <strong>{{ demandes_total }}</strong>
+                <small>demandes soumises</small>
+            </div>
+            <div class="summary-card aqua">
+                <span>Validees</span>
+                <strong>{{ demandes_validees }}</strong>
+                <small>demandes approuvees</small>
+            </div>
+        </div>
+    </section>
+
+    <!-- Le tableau reste utilisable sur petits écrans grâce au conteneur responsive. -->
+    <section class="data-panel">
+        <div class="panel-header">
+            <h2>File de validation</h2>
+            <span class="online-pill">{{ demandes_refusees }} refusees</span>
+        </div>
+    <div class="table-responsive">
+        <!-- Bootstrap donne un rendu clair au tableau. -->
+        <table class="table table-bordered table-hover align-middle bg-white">
+            <!-- L'en-tête annonce les informations affichées. -->
+            <thead class="table-light">
+                <tr>
+                    <th>Employé</th>
+                    <th>Début</th>
+                    <th>Fin</th>
+                    <th>Type</th>
+                    <th>Motif</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <!-- Le corps contient les demandes transmises par la vue. -->
+            <tbody>
+                <!-- La boucle affiche une ligne par demande en attente. -->
+                {% for demande in demandes %}
+                    <tr>
+                        <td>{{ demande.employe.user.username }}</td>
+                        <td>{{ demande.date_debut }}</td>
+                        <td>{{ demande.date_fin }}</td>
+                        <td>{{ demande.get_type_conge_display }}</td>
+                        <td>{{ demande.motif|default:"-" }}</td>
+                        <td>
+                            <!-- Le groupe garde les deux actions côte à côte. -->
+                            <div class="d-flex gap-2">
+                                <!-- Ce formulaire POST valide uniquement cette demande. -->
+                                <form method="post" action="{% url 'conges:traiter_demande' demande.id %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-success btn-sm" name="action" value="valider" type="submit">Valider</button>
+                                </form>
+                                <!-- Ce formulaire POST refuse uniquement cette demande. -->
+                                <form method="post" action="{% url 'conges:traiter_demande' demande.id %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-danger btn-sm" name="action" value="refuser" type="submit">Refuser</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <!-- Le bloc empty évite un tableau vide sans explication. -->
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Aucune demande en attente.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </section>
+{% endblock %}

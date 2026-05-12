@@ -1,0 +1,78 @@
+<!--
+Rôle de ce fichier dans Django :
+Ce template affiche l'historique des demandes de congé.
+Il adapte le titre et les colonnes selon les droits envoyés par historique_demandes.
+-->
+{% extends 'conges/base.html' %}
+
+{% block content %}
+    <!-- L'en-tête indique si l'utilisateur voit son historique ou l'historique global. -->
+    <div class="d-flex justify-content-between align-items-center gap-3 mb-4 page-heading">
+        <div>
+            {% if can_view_all %}
+                <h1>Historique des demandes</h1>
+                <p class="text-muted mb-0">Toutes les demandes soumises par les utilisateurs.</p>
+            {% else %}
+                <h1>Mon historique</h1>
+                <p class="text-muted mb-0">Toutes vos demandes de congé.</p>
+            {% endif %}
+        </div>
+        {% if not can_view_all %}
+            <a class="btn btn-primary" href="{% url 'conges:soumettre_demande' %}">Nouvelle demande</a>
+        {% endif %}
+    </div>
+
+    <!-- Le tableau affiche les demandes filtrées par la vue. -->
+    <section class="data-panel">
+        <div class="panel-header">
+            <h2>Demandes archivees</h2>
+            <span class="online-pill">{{ demandes|length }} lignes</span>
+        </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered align-middle bg-white">
+            <thead class="table-light">
+                <tr>
+                    {% if can_view_all %}
+                        <th>Employé</th>
+                    {% endif %}
+                    <th>Début</th>
+                    <th>Fin</th>
+                    <th>Type</th>
+                    <th>Motif</th>
+                    <th>Statut</th>
+                    <th>Soumise le</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for demande in demandes %}
+                    <tr>
+                        {% if can_view_all %}
+                            <td>{{ demande.employe.user.username }}</td>
+                        {% endif %}
+                        <td>{{ demande.date_debut }}</td>
+                        <td>{{ demande.date_fin }}</td>
+                        <td>{{ demande.get_type_conge_display }}</td>
+                        <td>{{ demande.motif|default:"-" }}</td>
+                        <td>
+                            {% if demande.statut == 'validee' %}
+                                <span class="badge text-bg-success">{{ demande.get_statut_display }}</span>
+                            {% elif demande.statut == 'refusee' %}
+                                <span class="badge text-bg-danger">{{ demande.get_statut_display }}</span>
+                            {% else %}
+                                <span class="badge text-bg-warning">{{ demande.get_statut_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ demande.date_soumission|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="{% if can_view_all %}7{% else %}6{% endif %}" class="text-center text-muted">
+                            Aucune demande dans l'historique.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </section>
+{% endblock %}

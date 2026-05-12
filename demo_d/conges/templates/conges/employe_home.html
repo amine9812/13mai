@@ -1,0 +1,95 @@
+<!--
+Rôle de ce fichier dans Django :
+Ce template affiche l'espace personnel de l'employé.
+Il montre le solde de congés et l'historique des demandes passés par employe_home.
+-->
+{% extends 'conges/base.html' %}
+
+{% block content %}
+    <!-- L'en-tête regroupe le titre et l'action principale. -->
+    <div class="d-flex justify-content-between align-items-center gap-3 mb-4 page-heading">
+        <div>
+            <!-- Le titre identifie la page courante. -->
+            <h1>My Activity</h1>
+            <p>Espace employé pour suivre votre solde et vos demandes.</p>
+        </div>
+        <!-- Ces liens ouvrent l'historique complet de l'employé et le formulaire de nouvelle demande. -->
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary" href="{% url 'conges:historique_demandes' %}">Mon historique</a>
+            <a class="btn btn-primary" href="{% url 'conges:soumettre_demande' %}">Nouvelle demande</a>
+        </div>
+    </div>
+
+    <!-- Ces cartes résument l'activité personnelle de l'employé. -->
+    <section class="hero-panel mb-4">
+        <div class="summary-grid">
+            <div class="summary-card mint">
+                <span>Solde de congés</span>
+                <strong>{{ employe.solde_conges }}</strong>
+                <small>jours disponibles</small>
+            </div>
+            <div class="summary-card aqua">
+                <span>Demandes totales</span>
+                <strong>{{ demandes_total }}</strong>
+                <small>dans votre historique</small>
+            </div>
+            <div class="summary-card rose">
+                <span>En attente</span>
+                <strong>{{ demandes_en_attente }}</strong>
+                <small>a traiter</small>
+            </div>
+        </div>
+    </section>
+
+    <!-- Le tableau présente les demandes sous une forme compacte. -->
+    <section class="data-panel">
+        <div class="panel-header">
+            <!-- Le titre introduit le tableau d'historique. -->
+            <h2>Historique recent</h2>
+            <span class="online-pill">{{ demandes_validees }} validees</span>
+        </div>
+    <div class="table-responsive">
+        <!-- Bootstrap rend le tableau lisible et sobre. -->
+        <table class="table table-striped table-bordered align-middle bg-white">
+            <!-- L'en-tête décrit chaque colonne. -->
+            <thead class="table-light">
+                <tr>
+                    <th>Début</th>
+                    <th>Fin</th>
+                    <th>Type</th>
+                    <th>Motif</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <!-- Le corps contient une ligne par demande. -->
+            <tbody>
+                <!-- La boucle parcourt les demandes transmises par la vue. -->
+                {% for demande in demandes %}
+                    <tr>
+                        <!-- Les doubles accolades affichent une valeur Python échappée en HTML. -->
+                        <td>{{ demande.date_debut }}</td>
+                        <td>{{ demande.date_fin }}</td>
+                        <td>{{ demande.get_type_conge_display }}</td>
+                        <td>{{ demande.motif|default:"-" }}</td>
+                        <td>
+                            <!-- Les conditions choisissent une couleur selon le statut. -->
+                            {% if demande.statut == 'validee' %}
+                                <span class="badge text-bg-success">{{ demande.get_statut_display }}</span>
+                            {% elif demande.statut == 'refusee' %}
+                                <span class="badge text-bg-danger">{{ demande.get_statut_display }}</span>
+                            {% else %}
+                                <span class="badge text-bg-warning">{{ demande.get_statut_display }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <!-- Le bloc empty s'affiche quand la liste ne contient aucune demande. -->
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Aucune demande pour le moment.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </section>
+{% endblock %}

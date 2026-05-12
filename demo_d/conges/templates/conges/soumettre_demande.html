@@ -1,0 +1,55 @@
+<!--
+Rôle de ce fichier dans Django :
+Ce template affiche le formulaire de création d'une demande de congé.
+Il reçoit DemandeCongeForm depuis la vue soumettre_demande.
+-->
+{% extends 'conges/base.html' %}
+
+{% block content %}
+    <!-- Le lien permet de revenir à l'historique sans soumettre. -->
+    <a class="btn btn-outline-primary mb-3" href="{% url 'conges:employe_home' %}">Retour</a>
+    <!-- La carte encadre uniquement le formulaire métier. -->
+    <div class="card">
+        <!-- Le corps contient les champs de la demande. -->
+        <div class="card-body">
+            <!-- Le titre indique l'objet de la page. -->
+            <div class="page-heading">
+                <h1>Soumettre une demande</h1>
+                <p>Choisissez les dates, le type et ajoutez un motif si besoin.</p>
+            </div>
+            <!-- Le formulaire utilise POST car il crée une donnée en base. -->
+            <form method="post">
+                <!-- Le jeton CSRF protège la création contre les requêtes externes. -->
+                {% csrf_token %}
+                <!-- Ce bloc affiche les erreurs globales du formulaire si elles existent. -->
+                {{ form.non_field_errors }}
+                <!-- Chaque champ est affiché explicitement pour garder un rendu Bootstrap propre. -->
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.date_debut.id_for_label }}">Date de début</label>
+                    {{ form.date_debut }}
+                    {{ form.date_debut.errors }}
+                </div>
+                <!-- Le champ date_fin indique la dernière journée demandée. -->
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.date_fin.id_for_label }}">Date de fin</label>
+                    {{ form.date_fin }}
+                    {{ form.date_fin.errors }}
+                </div>
+                <!-- Le type de congé utilise les choix définis dans le modèle. -->
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.type_conge.id_for_label }}">Type</label>
+                    {{ form.type_conge }}
+                    {{ form.type_conge.errors }}
+                </div>
+                <!-- Le motif reste optionnel pour garder la soumission simple. -->
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.motif.id_for_label }}">Motif</label>
+                    {{ form.motif }}
+                    {{ form.motif.errors }}
+                </div>
+                <!-- Le bouton envoie la demande à la vue. -->
+                <button class="btn btn-primary" type="submit">Envoyer la demande</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
